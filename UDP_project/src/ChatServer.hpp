@@ -11,6 +11,7 @@
 #include "LogSvr.hpp"
 #include "ConnectInfo.hpp"
 #include "UserManager.hpp"
+#include "Message.hpp"
 
 
 #define UDP_PORT 17777
@@ -293,7 +294,7 @@ class ChatServer
       {
         return LOGINFAILED;
       }
-      return LOGINED;
+      return LOGINED
 
     }
     int DealLoginout()
@@ -316,6 +317,10 @@ class ChatServer
         std::string msg;
         msg.assign(buf,recvsize);
         LOG(INFO,msg);
+        //需要将发送的数据从JSON格式转化为我们可以识别的格式：
+       Message jsonmsg;
+       jsonmsg.Deserialize(msg);
+
         //需要增加用户管理，只有注册登录的人才可以向服务器发送消息
         //1.校验当前的消息是否注册用户或者老用户发送的
         //    1.1 不是，则认为使非法消息
@@ -323,9 +328,13 @@ class ChatServer
         //       是：保存地址信息，并且更新状态为在线，将数据放到数据池当中 
         //       是老用户：直接将数据放到数据池当中
         //2.需要校验，势必是和用户管理模块打交道
-        UserMana_->IsLogin(cliaddr,cliaddrlen);
+        bool ret = UserMana_->IsLogin(jsonmsg.GetUserId(),cliaddr,cliaddrlen);
+        if(ret == true)
+      {
         MsgPool_->PushMsgPool(msg);
+
       }
+    }
     }
 
     void BroadcastMsg()
