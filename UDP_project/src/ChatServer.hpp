@@ -55,7 +55,7 @@ class ChatServer
       UdpSock_ = socket(AF_INET,SOCK_DGRAM,IPPROTO_UDP) ;
       if(UdpSock_ < 0 )
       {
-        LOG(FATAL,"Create socket faild");
+        LOG(FATAL,"Create socket faild")<<std::endl;
         exit(1);
       }
       //2.绑定地址信息
@@ -67,24 +67,24 @@ class ChatServer
       int ret = bind(UdpSock_,(struct sockaddr*)&addr,sizeof(addr));
       if(ret < 0)
       {
-        LOG(FATAL,"bind addrinfo failed");
+        LOG(FATAL,"bind addrinfo failed")<<std::endl;
         exit(2);
       }
 
-      LOG(INFO,"Udp bind success");
+      LOG(INFO,"Udp bind success 0.0.0.0 17777")<<std::endl;
       //初始化数据池
       MsgPool_ = new MsgPool();
       if(!MsgPool_)
       {
-        LOG(FATAL,"Create MsgPool failed");
+        LOG(FATAL,"Create MsgPool failed")<<std::endl;
         exit(3);
       }
-      LOG(INFO,"Create MsgPool success");
+      LOG(INFO,"Create MsgPool success")<<std::endl;
 
       UserMana_ = new UserManager();
       if(UserMana_ == NULL)
       {
-        LOG(FATAL,"Create User Manager failed");
+        LOG(FATAL,"Create User Manager failed")<<std::endl;
         exit(8);
       }
 
@@ -92,7 +92,7 @@ class ChatServer
       TcpSock_ = socket(AF_INET,SOCK_STREAM,IPPROTO_TCP);
       if(TcpSock_ < 0 )
       {
-        LOG(FATAL,"Create Tcp socket faild");
+        LOG(FATAL,"Create Tcp socket faild")<<std::endl;
         exit(5);
       }
 
@@ -103,17 +103,17 @@ class ChatServer
       ret = bind(TcpSock_,(struct sockaddr*)&tcpaddr,sizeof(tcpaddr));
       if(ret < 0)
       {
-        LOG(FATAL,"Bind Tcp addrinfo faild");
+        LOG(FATAL,"Bind Tcp addrinfo faild")<<std::endl;
         exit(6);
       }
 
-      ret = listen(TcpPort_,5);
+      ret = listen(TcpSock_,5);
       if(ret < 0)
       {
-        LOG(FATAL,"Tcp listen failed");
+        LOG(FATAL,"Tcp listen failed")<<std::endl;
         exit(7);
       }
-      LOG(INFO,"Tcp listen 0.0.0.0:17778");
+      LOG(INFO,"Tcp listen 0.0.0.0:17778")<<std::endl;
     }
     //初始化程序当中生产和消费线程
     void Start()
@@ -124,18 +124,18 @@ class ChatServer
         int ret = pthread_create(&tid,NULL,ProductMsgStart,(void*)this);
         if(ret < 0)
         {
-          LOG(FATAL,"pthread_create new thread failed");
+          LOG(FATAL,"pthread_create new thread failed")<<std::endl;
           exit(4);
         }
          ret = pthread_create(&tid,NULL,ConsumeMsgStart,(void*)this);
          if(ret < 0)
          {
-           LOG(FATAL,"pthread_create new thread failed");
+           LOG(FATAL,"pthread_create new thread failed")<<std::endl;
          //  Log(FATAL,__FILE__,__LINE__,"pthread");
            exit(4);
          }
       }
-      LOG(INFO,"UdpChat Service start success");
+      LOG(INFO,"UdpChat Service start success")<<std::endl;
     
       while(1)
       {
@@ -144,23 +144,23 @@ class ChatServer
         int newsock = accept(TcpSock_,(struct sockaddr*)&cliaddr,&cliaddrlen);
         if(newsock < 0)
         {
-          LOG(ERROR,"Accept new connect failed");
+          LOG(ERROR,"Accept new connect failed")<<std::endl;
           continue;
         }
         LoginConnect* lc = new LoginConnect(newsock,(void*)this);
         if(!lc)
         {
-          LOG(ERROR,"Create LoginConnect failed");
+          LOG(ERROR,"Create LoginConnect failed")<<std::endl;
         }
         //创建线程，处理登录，注册的请求
         pthread_t tid;
         int ret = pthread_create(&tid,NULL,LoginRegStart,(void*)lc);
         if(ret < 0)
         {
-          LOG(ERROR,"Create User LoginConnect thread failed");
+          LOG(ERROR,"Create User LoginConnect thread failed")<<std::endl;
           continue;
         }
-        LOG(INFO,"Create TcpConnect thread success");
+        LOG(INFO,"Create TcpConnect thread success")<<std::endl;
       }
 
     }
@@ -199,12 +199,12 @@ class ChatServer
       ssize_t recvsize = recv(lc->GetTcpSock(),&QuesType,1,0);
       if(recvsize < 0)
       {
-        LOG(ERROR,"Recv TagType failed");
+        LOG(ERROR,"Recv TagType failed")<<std::endl;
         return NULL;
       }
       else if(recvsize == 0)
       {
-        LOG(ERROR,"Client shutdown connect");
+        LOG(ERROR,"Client shutdown connect")<<std::endl;
         return NULL;
       }
 
@@ -226,7 +226,8 @@ class ChatServer
           cs->DealLoginout();
           break;
         default:
-          LOG(ERROR,"Recv Request type not a effective value");
+          UserStaus = REGFAILED;
+          LOG(ERROR,"Recv Request type not a effective value")<<std::endl;
           break;
       }
       //响应 send(sock,buf,size,0)
@@ -236,9 +237,11 @@ class ChatServer
       ssize_t sendsize = send(lc->GetTcpSock(),&ri,sizeof(ri),0);
       if(sendsize < 0)
       {
-        LOG(ERROR,"SendMsg Failed");
+        //TODO
+        //如果发送数据失败了，是否需要考虑应用层重新发送一个
+        LOG(ERROR,"SendMsg Failed")<<std::endl;
       }
-      LOG(INFO,"SendMsg success");
+      LOG(INFO,"SendMsg success")<<std::endl;
 
       //将TCP连接释放掉
       close(lc->GetTcpSock());
@@ -255,12 +258,12 @@ class ChatServer
       ssize_t recvsize = recv(Sock,&ri,sizeof(ri),0);
       if(recvsize < 0)
       {
-        LOG(ERROR,"Recv TagType failed");
+        LOG(ERROR,"Recv TagType failed")<<std::endl;
         return OFFLINE;
       }
       else if(recvsize == 0)
       {
-        LOG(ERROR,"Client shutdown connect");
+        LOG(ERROR,"Client shutdown connect")<<std::endl;
         //特殊处理对端关闭的情况
       }
       //调用用户管理模块进行注册请求处理
@@ -280,12 +283,12 @@ class ChatServer
       ssize_t recvsize = recv(Sock,&li,sizeof(li),0);
       if(recvsize < 0)
       {
-        LOG(ERROR,"Recv TagType failed");
+        LOG(ERROR,"Recv TagType failed")<<std::endl;
         return OFFLINE;
       }
       else if(recvsize == 0)
       {
-        LOG(ERROR,"Client shutdown connect");
+        LOG(ERROR,"Client shutdown connect")<<std::endl;;
         //需要处理
       }
 
@@ -294,7 +297,7 @@ class ChatServer
       {
         return LOGINFAILED;
       }
-      return LOGINED
+      return LOGINED;
 
     }
     int DealLoginout()
@@ -310,13 +313,13 @@ class ChatServer
       int recvsize = recvfrom(UdpSock_,buf,sizeof(buf)-1,0,(struct sockaddr*)&cliaddr,&cliaddrlen);
       if(recvsize < 0)
       {
-        LOG(ERROR,"recvfrom msg failed");
+        LOG(ERROR,"recvfrom msg failed")<<std::endl;
       }
       else{
         //正常逻辑
         std::string msg;
         msg.assign(buf,recvsize);
-        LOG(INFO,msg);
+        LOG(INFO,msg)<<std::endl;
         //需要将发送的数据从JSON格式转化为我们可以识别的格式：
        Message jsonmsg;
        jsonmsg.Deserialize(msg);
@@ -331,19 +334,28 @@ class ChatServer
         bool ret = UserMana_->IsLogin(jsonmsg.GetUserId(),cliaddr,cliaddrlen);
         if(ret == true)
       {
+        LOG(INFO,"Push msg to MsgPool")<< std::endl;
         MsgPool_->PushMsgPool(msg);
-
       }
+        LOG(ERROR,"discarded the msg  ")<<msg<<std::endl;
     }
     }
 
     void BroadcastMsg()
     {
       //1.获取要给哪一个用户进行发送
-      //2.获取发送内容
-      //SendMsg();
       std::string msg;
       MsgPool_->PopMsgPool(&msg);
+      //2.获取要给哪一个用户发送内容
+      //SendMsg();
+      //用户管理系统提供结构获取在线的用户列表
+      std::vector<UserInfo> OnlineUserVec;
+      UserMana_->GetOnlineUserInfo(&OnlineUserVec);
+      std::vector<UserInfo>::iterator iter;
+      for(;iter != OnlineUserVec.end();iter++)
+      {
+        SendMsg(msg,iter->GetCliAddrInfo(),iter->GetCliAddrLen());
+      }
     }
     //给一个客户端发送单个消息接口
     void SendMsg(const std::string& msg,struct sockaddr_in& cliaddr,socklen_t&len)
@@ -351,12 +363,14 @@ class ChatServer
       ssize_t sendsize = sendto(UdpSock_,msg.c_str(),msg.size(),0,(struct sockaddr*)&cliaddr,len);
       if(sendsize < 0)
       {
-        LOG(ERROR,"sendto msg faild");
+        LOG(ERROR,"sendto msg faild")<<std::endl;
+        //没有发送成功，是否需要缓存没有发送成功的信息还有客户端的地址
       }
       else
       {
         //成功
-      }
+        LOG(INFO,"Sendto msg success") << "[" << inet_ntoa(cliaddr.sin_addr)<<":"<<ntohs(cliaddr.sin_port) <<"]"<<msg<<std::endl;
+    }
     }
   private:
     int UdpSock_;

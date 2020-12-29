@@ -48,6 +48,16 @@ class UserInfo
     {
       CliAddrLen_ = CliAddrLen;
     }
+
+    struct sockaddr_in& GetCliAddrInfo()
+    {
+      return CliAddr_;
+    }
+
+    socklen_t& GetCliAddrLen()
+    {
+      return CliAddrLen_;
+    }
   private:
     std::string NickName_;
     std::string School_;
@@ -155,7 +165,7 @@ class UserManager
       if(iter == UserMap_.end())
       {
         pthread_mutex_unlock(&Lock_);
-        LOG(ERROR,"User not exist");
+        LOG(ERROR,"User not exist")<<std::endl;
         return false;
       }
       //2.判断当前用户状态，来判断是否完成注册和登录
@@ -184,6 +194,11 @@ class UserManager
       }
         pthread_mutex_unlock(&Lock_);
       return true;
+    }
+
+    void GetOnlineUserInfo(std::vector<UserInfo>* vec)
+    {
+      *vec = OnlineUserVec_;
     }
   private:
     //保存所有注册用户信息
