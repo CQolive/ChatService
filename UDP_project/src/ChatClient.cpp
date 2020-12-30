@@ -49,6 +49,26 @@ int main(int argc,char* argv[])
       else 
       {
         std::cout<<"login success! Please Chat Online!"<<std::endl;
+        while(1)
+        {
+        std::cout<<"Please enter# ";
+        fflush(stdout);
+        std::string stdin_msg;
+        std::cin>>stdin_msg;
+        Json::Value val;
+        val["NickName_"] = "1";
+        val["School_"] = "1";
+        val["msg"] = stdin_msg; 
+        val["UserId_"] = 0;
+        Json::FastWriter writer;
+        std::string msg;
+        msg = writer.write(val);
+        cc->SendMsg(msg);
+
+        cc->RecvMsg(&msg);
+        std::cout<<msg<<std::endl;
+
+        }
       }
     }
     else if(Select == 4)

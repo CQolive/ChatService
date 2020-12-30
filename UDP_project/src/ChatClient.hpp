@@ -8,6 +8,7 @@
 
 #include<unistd.h>
 #include<string>
+#include"json/json.h"
 
 #include"LogSvr.hpp"
 #include"ConnectInfo.hpp"

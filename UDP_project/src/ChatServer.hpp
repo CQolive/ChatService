@@ -335,12 +335,12 @@ class ChatServer
         //       是老用户：直接将数据放到数据池当中
         //2.需要校验，势必是和用户管理模块打交道
         bool ret = UserMana_->IsLogin(jsonmsg.GetUserId(),cliaddr,cliaddrlen);
-        if(ret == true)
+        if(ret != true)
       {
+        LOG(ERROR,"discarded the msg  ")<<msg<<std::endl;
+      }
         LOG(INFO,"Push msg to MsgPool")<< std::endl;
         MsgPool_->PushMsgPool(msg);
-      }
-        LOG(ERROR,"discarded the msg  ")<<msg<<std::endl;
     }
     }
 
@@ -354,7 +354,7 @@ class ChatServer
       //用户管理系统提供结构获取在线的用户列表
       std::vector<UserInfo> OnlineUserVec;
       UserMana_->GetOnlineUserInfo(&OnlineUserVec);
-      std::vector<UserInfo>::iterator iter;
+      std::vector<UserInfo>::iterator iter = OnlineUserVec.begin();
       for(;iter != OnlineUserVec.end();iter++)
       {
         SendMsg(msg,iter->GetCliAddrInfo(),iter->GetCliAddrLen());

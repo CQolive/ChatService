@@ -11,7 +11,7 @@ all:$(SVRBIN) $(CLIBIN)
 $(SVRBIN):ChatServer.cpp
 	g++ $^ -o $@ $(CFLAGS) $(LDFLAGS)
 $(CLIBIN):ChatClient.cpp
-	g++ $^ -o $@ -g
+	g++ $^ -o $@ -g $(CFLAGS) $(LDFLAGS)
 
 
 .PHONY:clean

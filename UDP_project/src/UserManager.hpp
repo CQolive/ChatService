@@ -188,6 +188,7 @@ class UserManager
       if(iter->second.GetUserStatus() == USERLOGINED)
       {
         //增加地址信息，地址长度，改变状态为ONLINE
+        //printf("%s:%d\n",inet_ntoa(CliAddr.sin_addr),ntohs(CliAddr.sin_port));
         iter->second.SetCliAddrInfo(CliAddr);
         iter->second.SetCliAddrLen(CliaddrLen);
         iter->second.SetUserStatus(ONLINE);
