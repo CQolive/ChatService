@@ -220,6 +220,7 @@ class ChatServer
         case LOGIN:
           //使用用户管理模块的登录
           UserStaus = cs->DealLogin(lc->GetTcpSock());
+          std::cout<<"UserStatus: "<<UserStaus<<std::endl;
           break;
         case LOGINOUT:
           //使用用户管理模块的退出登录
@@ -292,9 +293,11 @@ class ChatServer
         //需要处理
       }
 
+      LOG(DEBUG,"UserId:Passwd_") <<li.UserId_<<":"<<li.Passwd_<<std::endl;
       int ret = UserMana_->Login(li.UserId_,li.Passwd_);
       if(ret == -1)
       {
+        LOG(ERROR,"User Login failed") <<std::endl;
         return LOGINFAILED;
       }
       return LOGINED;

@@ -10,7 +10,7 @@
 #include"LogSvr.hpp"
 #define OFFLINE 0
 #define REGISTERED 1
-#define LOGINED 2
+#define USERLOGINED 2
 #define ONLINE 3
 class UserInfo
 {
@@ -132,19 +132,21 @@ class UserManager
         if(Passwd == iter->second.GetPassws())
         {
           //密码正确
-          iter->second.GetUserStatus() = LOGINED;
+          iter->second.GetUserStatus() = USERLOGINED;
           LoginStatus = 0;
 
         }
         else 
         {
           //密码不正确
+        LOG(ERROR,"User Passwd is not correct passwd is ")<<Passwd<<std::endl;
           LoginStatus = -1;
         }
       }
       else 
       {
         //没找到
+        LOG(ERROR,"UserId not found UserId is ")<<UserId<<std::endl;
           LoginStatus = -1;
       }
       pthread_mutex_unlock(&Lock_);
@@ -183,7 +185,7 @@ class UserManager
       }
 
       //第一次发送消息
-      if(iter->second.GetUserStatus() == LOGINED)
+      if(iter->second.GetUserStatus() == USERLOGINED)
       {
         //增加地址信息，地址长度，改变状态为ONLINE
         iter->second.SetCliAddrInfo(CliAddr);
